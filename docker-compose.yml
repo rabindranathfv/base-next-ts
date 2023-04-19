@@ -1,0 +1,25 @@
+version: "3"
+
+services:
+  app:
+    build: ./
+    environment:
+      NODE_ORACLEDB_USER: system
+      NODE_ORACLEDB_PASSWORD: oracle
+      NODE_ORACLEDB_CONNECTIONSTRING: oracle-db:1521/xe
+    ports:
+      - "3000:3000"
+    entrypoint: npm run dev
+    links:
+      - oracle-db
+    volumes:
+      - .:/usr/src/app
+
+  oracle-db:
+    image: oracleinanutshell/oracle-xe-11g:latest
+    environment:
+      ORACLE_ALLOW_REMOTE: 'true'
+    ports:
+      - 1521:1521
+      - 5500:5500
+      - 8080:8080
