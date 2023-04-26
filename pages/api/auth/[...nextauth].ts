@@ -1,7 +1,5 @@
 import NextAuth from "next-auth"
-import GithubProvider from "next-auth/providers/github"
 import CredentialsProvider from "next-auth/providers/credentials"
-import { Try } from "@mui/icons-material"
 
 const MOCK_USER = {
   id: 1,
@@ -16,36 +14,40 @@ const MOCK_USER = {
 export const authOptions = {
   // Configure one or more authentication providers
   providers: [
-    GithubProvider({
-      clientId: process.env.GITHUB_ID,
-      clientSecret: process.env.GITHUB_SECRET,
-    }),
     CredentialsProvider({
       name: 'Credentials',
-      credentials: {
-        username: { label: "Username", type: "text", placeholder: `${MOCK_USER.username}` },
-        password: { label: "Password", type: "password" }
-      },
+      // credentials: {
+      //   username: { label: "Username", type: "text", placeholder: `${MOCK_USER.username}` },
+      //   password: { label: "Password", type: "password" }
+      // },
       async authorize(credentials, req) {
         try {
-          console.log('🚀 ~ file: [...nextauth].ts:30 ~ authorize ~ credentials:', credentials)
+          console.log('🚀 ~ file: [...nextauth].ts:30 ~ authorize ~ credentials:', credentials,
+            credentials?.username === MOCK_USER.email && credentials?.password === MOCK_USER.password)
+          const { username, password } = credentials as {
+            username: string
+            password: string
+          }
 
           // TODO: add call DB
-          let user;
+          let user
 
 
-          if (credentials?.username === MOCK_USER.username && credentials?.password === MOCK_USER.password) {
-            console.log('USUARIO MOCK')
-            return MOCK_USER as any
+          if (username === MOCK_USER.username && password === MOCK_USER.password) {
+            console.log('USUARIO MOCK', MOCK_USER)
+            return { id: MOCK_USER.id, name: MOCK_USER.username, email: MOCK_USER.email } as any
           } else if (user) {
-            return user;
+            console.log('AQUI')
+            return user
           }
+          console.log('return null on AUTHORIZE METHOD')
           return null
         } catch (error) {
-          console.log('🚀 ~ file: [...nextauth].ts:33 ~ authorize ~ error:', error)
+          console.log("🚀 ~ file: [...nextauth].ts:47 ~ authorize ~ error:", error)
         }
 
-      }
+      },
+      credentials: undefined
     })
   ],
 }
